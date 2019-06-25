@@ -1,9 +1,14 @@
-import React, { Component } from 'react'
-import { render } from 'react-dom'
+import React, {Component} from 'react'
+import {render} from 'react-dom'
 
 import AppContainer from './AppContainer'
 
-import { getGmailLocationToInject, widgetInsidePanel } from './config'
+import {
+  getGmailLocationToInject,
+  gmailAccountName,
+  widgetInsidePanel,
+  labelControlsContainer
+} from './gmailNodes'
 
 const GMAIL_QUICK_LINKS_CONTAINER = 'gmailQuickLinksContainer'
 
@@ -22,18 +27,18 @@ const injectReact = location => {
   if (location === 'widget') {
     widgetInsidePanel().append(gmailQuickLinksContainer)
   } else {
-    getGmailLocationToInject().append(gmailQuickLinksContainer)
+    labelControlsContainer().insertAdjacentElement(
+      'beforebegin',
+      gmailQuickLinksContainer
+    )
   }
 
   console.log('Loaded Gmail Quick Links')
 
   //TODO: what is the person isn't signed in?  Does this crash extension?
-  const currentAccountName = document
-    .querySelectorAll('a[href*="accounts.google.com"]')[0]
-    .title.match(/\(([^)]+)\)/)[1]
 
   //load react
-  beginReact(currentAccountName)(location)
+  beginReact(gmailAccountName())(location)
 }
 
 const checkWidgetPanel = untilStop => {
@@ -60,6 +65,23 @@ const checkWidgetPanel = untilStop => {
 const checkDomElementExist = setInterval(() => {
   if (getGmailLocationToInject()) {
     clearInterval(checkDomElementExist)
+
+    //TODO: if hamburger menu is collapsed, then remove quick links, else show
+    // //add event listener to hamburger menu if it exists
+    // if (hambugerMenuContainer()) {
+    //   document
+    //     .getElementsByClassName('gb_jc')[0]
+    //     .addEventListener('click', () => {
+    //       if (gmailControlsContainer().offsetWidth < 100) {
+    //         document.getElementById(GMAIL_QUICK_LINKS_CONTAINER) &&
+    //           document.getElementById(GMAIL_QUICK_LINKS_CONTAINER).remove()
+    //       } else {
+    //         document.getElementById(GMAIL_QUICK_LINKS_CONTAINER) &&
+    //           document.getElementById(GMAIL_QUICK_LINKS_CONTAINER).remove()
+    //         injectReact()
+    //       }
+    //     })
+    // }
 
     //check the presense of a widget panel for 20 seconds, then stop checking
     checkWidgetPanel(20)
